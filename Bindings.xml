@@ -1,0 +1,8 @@
+<Bindings>
+	<Binding name="SDL_FURY_ST" header="SDL">
+		SDL.Press("fury_st")
+	</Binding>
+	<Binding name="SDL_FURY_AOE" header="SDL">
+		SDL.Press("fury_aoe")
+	</Binding>
+</Bindings>

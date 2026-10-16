@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: SDL
+## Notes: Spiegel DPS Library - one-button rotations for Turtle WoW
+## Author: Spiegel
+## Version: 0.1.0
+## SavedVariables: SDL_Config
+## OptionalDeps: Cursive, TWThreat, pfUI
+Core.lua
+Warrior.lua
