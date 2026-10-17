@@ -5,4 +5,10 @@
 	<Binding name="SDL_FURY_AOE" header="SDL">
 		SDL.Press("fury_aoe")
 	</Binding>
+	<Binding name="SDL_PROT_ST" header="SDL">
+		SDL.Press("prot_st")
+	</Binding>
+	<Binding name="SDL_PROT_AOE" header="SDL">
+		SDL.Press("prot_aoe")
+	</Binding>
 </Bindings>

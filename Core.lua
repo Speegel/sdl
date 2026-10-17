@@ -6,13 +6,15 @@ SDL = {
     rotations = {},   -- key -> rotation, filled by the class files
     defaults = {
         debug = false,
-        sunder = { fury = 0 },
+        sunder = { fury = 0, prot = 5 },
     },
 }
 
 BINDING_HEADER_SDL = "SDL"
 BINDING_NAME_SDL_FURY_ST = "Fury - single target"
 BINDING_NAME_SDL_FURY_AOE = "Fury - AoE"
+BINDING_NAME_SDL_PROT_ST = "Protection - single target"
+BINDING_NAME_SDL_PROT_AOE = "Protection - AoE"
 
 --------------------------------------------------
 -- Output
@@ -186,7 +188,7 @@ local function SlashCommand(msg)
             SDL_Config.sunder[spec] = tonumber(n)
             SDL.Print("sunder " .. spec .. " = " .. n)
         else
-            SDL.Print("usage: /sdl sunder <fury> <0-5>")
+            SDL.Print("usage: /sdl sunder <fury|prot> <0-5>")
         end
     else
         SDL.Print("/sdl debug - toggle per-press debug output")
