@@ -8,3 +8,4 @@
 Core.lua
 Warrior.lua
 Mage.lua
+Druid.lua

@@ -23,4 +23,16 @@
 	<Binding name="SDL_MAGE_BURST" header="SDL">
 		SDL.Press("mage_burst")
 	</Binding>
+	<Binding name="SDL_CAT_ST" header="SDL">
+		SDL.Press("cat_st")
+	</Binding>
+	<Binding name="SDL_BEAR_ST" header="SDL">
+		SDL.Press("bear_st")
+	</Binding>
+	<Binding name="SDL_BEAR_AOE" header="SDL">
+		SDL.Press("bear_aoe")
+	</Binding>
+	<Binding name="SDL_BALANCE_ST" header="SDL">
+		SDL.Press("balance_st")
+	</Binding>
 </Bindings>

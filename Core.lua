@@ -7,7 +7,9 @@ SDL = {
     defaults = {
         debug = false,
         sunder = { fury = 0, prot = 5 },
+        bleedImmune = {},   -- target name -> true; persists across sessions
     },
+    handlers = {},    -- event -> list of functions, see SDL.On
 }
 
 BINDING_HEADER_SDL = "SDL"
@@ -19,6 +21,12 @@ BINDING_NAME_SDL_ARCANE_ST = "Arcane - single target"
 BINDING_NAME_SDL_ARCANE_AOE = "Arcane - AoE"
 BINDING_NAME_SDL_FROST_ST = "Frost - single target"
 BINDING_NAME_SDL_MAGE_BURST = "Mage - burst cooldowns"
+BINDING_NAME_SDL_CAT_ST = "Cat - single target"
+BINDING_NAME_SDL_BEAR_ST = "Bear - single target"
+BINDING_NAME_SDL_BEAR_AOE = "Bear - AoE"
+BINDING_NAME_SDL_BALANCE_ST = "Balance - single target"
+
+CreateFrame("Frame", "SDLFrame")
 
 --------------------------------------------------
 -- Output
@@ -41,6 +49,7 @@ local function MissingClientMods()
     if type(QueueSpellByName) ~= "function" then table.insert(missing, "Nampower") end
     if not SUPERWOW_VERSION then table.insert(missing, "SuperWoW") end
     if type(C_UnitAuras) ~= "table" or type(C_Spell) ~= "table" then table.insert(missing, "ClassicAPI") end
+    if type(UnitXP) ~= "function" then table.insert(missing, "UnitXP_SP3") end
     return missing
 end
 
@@ -101,6 +110,19 @@ function SDL.Aura(unit, name, filter)
     return C_UnitAuras.GetAuraDataBySpellName(unit, name, filter)
 end
 
+-- The player's own copy of an aura (another druid's Moonfire doesn't count).
+-- An aura whose caster wasn't observed this session is assumed to be ours.
+function SDL.MyAura(unit, name, filter)
+    local i = 1
+    local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, filter)
+    while aura do
+        if aura.name == name and (aura.sourceUnit == "player" or aura.sourceUnit == nil) then return aura end
+        i = i + 1
+        aura = C_UnitAuras.GetAuraDataByIndex(unit, i, filter)
+    end
+    return nil
+end
+
 -- Seconds left on an aura, or nil when the client doesn't know the timer
 function SDL.AuraRemaining(aura)
     if not aura or not aura.expirationTime or aura.expirationTime == 0 then return nil end
@@ -117,12 +139,48 @@ function SDL.HealthPercent(unit)
     return UnitHealth(unit) / max * 100
 end
 
+function SDL.HasForm(name)
+    for i = 1, GetNumShapeshiftForms() do
+        local _, formName = GetShapeshiftFormInfo(i)
+        if formName == name then return true end
+    end
+    return false
+end
+
 function SDL.InForm(name)
     for i = 1, GetNumShapeshiftForms() do
         local _, formName, active = GetShapeshiftFormInfo(i)
         if formName == name then return active and true or false end
     end
     return false
+end
+
+function SDL.InGroup()
+    return GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0
+end
+
+-- Threat percent from the optional TWThreat addon; 0 when it's absent
+function SDL.ThreatPercent()
+    if not (TWT and TWT.threats and TWT.name) then return 0 end
+    local data = TWT.threats[TWT.name]
+    return (data and data.perc) or 0
+end
+
+function SDL.IsBleedImmune()
+    local name = UnitName("target")
+    return name ~= nil and SDL_Config.bleedImmune[name] == true
+end
+
+--------------------------------------------------
+-- Events: class files subscribe with SDL.On(event, fn); fn reads the
+-- usual `event`/`arg1` globals
+
+function SDL.On(eventName, fn)
+    if not SDL.handlers[eventName] then
+        SDL.handlers[eventName] = {}
+        SDLFrame:RegisterEvent(eventName)
+    end
+    table.insert(SDL.handlers[eventName], fn)
 end
 
 local function HasHostileTarget()
@@ -217,6 +275,9 @@ local function SlashCommand(msg)
     if cmd == "debug" then
         SDL_Config.debug = not SDL_Config.debug
         SDL.Print("debug " .. (SDL_Config.debug and "on" or "off"))
+    elseif cmd == "resetimmune" then
+        SDL_Config.bleedImmune = {}
+        SDL.Print("bleed-immune list cleared")
     elseif cmd == "sunder" then
         local _, _, spec, n = string.find(rest, "^(%a+)%s+(%d)$")
         if spec and SDL_Config.sunder[spec] ~= nil and tonumber(n) <= 5 then
@@ -228,15 +289,20 @@ local function SlashCommand(msg)
     else
         SDL.Print("/sdl debug - toggle per-press debug output")
         SDL.Print("/sdl sunder <spec> <0-5> - Sunder Armor stacks to maintain (0 = off)")
+        SDL.Print("/sdl resetimmune - forget remembered bleed-immune targets")
     end
 end
 
 --------------------------------------------------
 -- Lifecycle
 
-local frame = CreateFrame("Frame", "SDLFrame")
-frame:RegisterEvent("ADDON_LOADED")
-frame:SetScript("OnEvent", function()
+SDLFrame:RegisterEvent("ADDON_LOADED")
+SDLFrame:SetScript("OnEvent", function()
+    local handlers = SDL.handlers[event]
+    if handlers and SDL.ok then
+        for i = 1, table.getn(handlers) do handlers[i]() end
+    end
+
     if event == "ADDON_LOADED" and string.lower(arg1 or "") == "sdl" then
         if type(SDL_Config) ~= "table" then SDL_Config = {} end
         ApplyDefaults(SDL_Config, SDL.defaults)

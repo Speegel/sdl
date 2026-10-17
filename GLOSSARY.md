@@ -33,7 +33,7 @@ The two situations a rotation can be pressed for; the player chooses which by pr
 _Avoid_: Mono, normal, multi, isMulti
 
 **Client mod**:
-A DLL loaded into the game client (Nampower, SuperWoW, ClassicAPI) that extends the Lua API; distinct from an addon.
+A DLL loaded into the game client (Nampower, SuperWoW, ClassicAPI, UnitXP_SP3) that extends the Lua API; distinct from an addon.
 _Avoid_: Plugin, extension, library
 
 **Legacy addon**:

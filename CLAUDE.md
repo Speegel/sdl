@@ -10,7 +10,7 @@ There is no build system or test suite; behavior can only be verified in-game. C
 
 ## Ground rules
 
-- Requires the Nampower (brues-code fork), SuperWoW and ClassicAPI client mods (ADR-0001). Cursive, TWThreat and pfUI are optional and must be guarded.
+- Requires the Nampower (brues-code fork), SuperWoW, ClassicAPI and UnitXP_SP3 client mods (ADR-0001). Cursive, TWThreat and pfUI are optional and must be guarded.
 - Everything lives under the single global namespace table `SDL`; the only other globals are the SavedVariable and the binding strings `Bindings.xml` needs.
 - A rotation is an ordered list of named entries (ADR-0002). One press evaluates it once and performs at most one action. The first entry puts the player in the spec's stance/form. While channeling, only entries marked `interrupts` run. The one exception to one-action-per-press is a burst key (off-GCD cooldowns all at once).
 - Decide from live game state only; any state the addon tracks itself must have a documented reason.

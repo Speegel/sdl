@@ -1,6 +1,6 @@
-# SDL requires Nampower, SuperWoW and ClassicAPI
+# SDL requires Nampower, SuperWoW, ClassicAPI and UnitXP_SP3
 
-SDL targets only the author's Turtle WoW setup, which loads the Nampower (brues-code fork), SuperWoW and ClassicAPI client DLLs through VanillaFixes. We treat all three as hard requirements rather than optional, so rotations can rely on spell-ID cooldowns, real cast/channel info, aura lookup by spell name/ID and spell queueing instead of the legacy addon's texture-matching and combat-log-parsing workarounds (`BuffQuery`, `GetTextureID`, last-cast timestamps). The cost is that SDL will not run on a bare 1.12 client; we accept that.
+SDL targets only the author's Turtle WoW setup, which loads the Nampower (brues-code fork), SuperWoW, ClassicAPI and UnitXP_SP3 client DLLs through VanillaFixes. We treat all four as hard requirements rather than optional, so rotations can rely on spell-ID cooldowns, real cast/channel info, aura lookup by spell name/ID, spell queueing and a reliable "behind the target" check (UnitXP_SP3, added for Cat's Shred/Claw choice) instead of the legacy addon's texture-matching and combat-log-parsing workarounds (`BuffQuery`, `GetTextureID`, last-cast timestamps). The cost is that SDL will not run on a bare 1.12 client; we accept that.
 
 ## Consequences
 
