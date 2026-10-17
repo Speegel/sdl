@@ -15,6 +15,10 @@ BINDING_NAME_SDL_FURY_ST = "Fury - single target"
 BINDING_NAME_SDL_FURY_AOE = "Fury - AoE"
 BINDING_NAME_SDL_PROT_ST = "Protection - single target"
 BINDING_NAME_SDL_PROT_AOE = "Protection - AoE"
+BINDING_NAME_SDL_ARCANE_ST = "Arcane - single target"
+BINDING_NAME_SDL_ARCANE_AOE = "Arcane - AoE"
+BINDING_NAME_SDL_FROST_ST = "Frost - single target"
+BINDING_NAME_SDL_MAGE_BURST = "Mage - burst cooldowns"
 
 --------------------------------------------------
 -- Output
@@ -128,11 +132,39 @@ end
 --------------------------------------------------
 -- Rotation runner (ADR-0002)
 --
--- A rotation is { melee = bool, entries = { { name, spell, when, cast }, ... } }.
+-- A rotation is { melee = bool, entries = { { name, spell, when, cast, interrupts }, ... } }.
 -- `when` is required; `cast` defaults to CastSpellByName(spell).
+-- While the player channels, only entries with `interrupts = true` are
+-- considered, and they stop the channel before casting. During a regular
+-- cast every entry is considered: Nampower queues the result.
+--
+-- A burst ({ burst = true, entries = ... }) is the one exception to
+-- one-action-per-press: it fires every entry whose condition holds, needs
+-- no target, and is meant only for off-GCD cooldowns.
 
 function SDL.Register(key, rotation)
     SDL.rotations[key] = rotation
+end
+
+local function Fire(entry)
+    if entry.cast then
+        entry.cast()
+    else
+        CastSpellByName(entry.spell)
+    end
+end
+
+local function PressBurst(key, entries)
+    local fired = false
+    for i = 1, table.getn(entries) do
+        local entry = entries[i]
+        if entry.when() then
+            Fire(entry)
+            SDL.Debug(key .. ": " .. entry.name)
+            fired = true
+        end
+    end
+    if not fired then SDL.Debug(key .. ": nothing ready") end
 end
 
 function SDL.Press(key)
@@ -141,6 +173,11 @@ function SDL.Press(key)
     local rotation = SDL.rotations[key]
     if not rotation then
         SDL.Debug(key .. ": not available for this character")
+        return
+    end
+
+    if rotation.burst then
+        PressBurst(key, rotation.entries)
         return
     end
 
@@ -156,20 +193,18 @@ function SDL.Press(key)
         StartAttack()
     end
 
+    local channeling = C_Spell.ChannelInfo() ~= nil
     local entries = rotation.entries
     for i = 1, table.getn(entries) do
         local entry = entries[i]
-        if entry.when() then
-            if entry.cast then
-                entry.cast()
-            else
-                CastSpellByName(entry.spell)
-            end
+        if (entry.interrupts or not channeling) and entry.when() then
+            if channeling then SpellStopCasting() end
+            Fire(entry)
             SDL.Debug(key .. ": " .. entry.name)
             return
         end
     end
-    SDL.Debug(key .. ": nothing (no entry's condition held)")
+    SDL.Debug(key .. (channeling and ": nothing (channeling)" or ": nothing (no entry's condition held)"))
 end
 
 --------------------------------------------------

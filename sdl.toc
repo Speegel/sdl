@@ -7,3 +7,4 @@
 ## OptionalDeps: Cursive, TWThreat, pfUI
 Core.lua
 Warrior.lua
+Mage.lua

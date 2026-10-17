@@ -11,4 +11,16 @@
 	<Binding name="SDL_PROT_AOE" header="SDL">
 		SDL.Press("prot_aoe")
 	</Binding>
+	<Binding name="SDL_ARCANE_ST" header="SDL">
+		SDL.Press("arcane_st")
+	</Binding>
+	<Binding name="SDL_ARCANE_AOE" header="SDL">
+		SDL.Press("arcane_aoe")
+	</Binding>
+	<Binding name="SDL_FROST_ST" header="SDL">
+		SDL.Press("frost_st")
+	</Binding>
+	<Binding name="SDL_MAGE_BURST" header="SDL">
+		SDL.Press("mage_burst")
+	</Binding>
 </Bindings>

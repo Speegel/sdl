@@ -16,6 +16,10 @@ _Avoid_: Sequence, combo, routine
 One named line of a rotation: a condition and the single action taken when it is the first entry whose condition holds.
 _Avoid_: Step, branch, rule
 
+**Burst**:
+A keybind that fires every ready off-GCD cooldown of a class at once; the one exception to a press performing at most one action.
+_Avoid_: Cooldowns key, pop, burn
+
 **Press**:
 One player keypress on a rotation's keybind or macro, which evaluates the rotation once and performs at most one action.
 _Avoid_: Tick, frame, update, spam
