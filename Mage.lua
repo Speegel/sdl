@@ -99,11 +99,14 @@ local icicles = {
 }
 
 -- A resisted Nova procs Flash Freeze, so Rank 1 goes out on cooldown
--- whenever the target is inside its radius (~10 yd)
+-- whenever the target is inside its reach (12 yd, measured in-game)
+local FROST_NOVA_RANGE = 12
+
 local frostNova = {
     name = "Frost Nova (Rank 1)",
     when = function()
-        return CheckInteractDistance("target", 3) and SDL.CanCast(S.FROST_NOVA)
+        local distance = UnitXP("distanceBetween", "player", "target", "AoE")
+        return distance and distance <= FROST_NOVA_RANGE and SDL.CanCast(S.FROST_NOVA)
     end,
     cast = function() CastSpellByName(S.FROST_NOVA_R1) end,
 }
