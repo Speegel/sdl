@@ -25,6 +25,7 @@ BINDING_NAME_SDL_CAT_ST = "Cat - single target"
 BINDING_NAME_SDL_BEAR_ST = "Bear - single target"
 BINDING_NAME_SDL_BEAR_AOE = "Bear - AoE"
 BINDING_NAME_SDL_BALANCE_ST = "Balance - single target"
+BINDING_NAME_SDL_CONSUME = "Eat and drink"
 
 CreateFrame("Frame", "SDLFrame")
 
@@ -169,6 +170,43 @@ end
 function SDL.IsBleedImmune()
     local name = UnitName("target")
     return name ~= nil and SDL_Config.bleedImmune[name] == true
+end
+
+--------------------------------------------------
+-- Bag items
+
+-- Bag and slot of the first stack of `name` in the player's bags, or nil
+function SDL.FindBagItem(name)
+    for bag = 0, 4 do
+        for slot = 1, GetContainerNumSlots(bag) do
+            local link = GetContainerItemLink(bag, slot)
+            if link and string.find(link, "[" .. name .. "]", 1, true) then
+                return bag, slot
+            end
+        end
+    end
+    return nil
+end
+
+-- Uses `name` from the bags; false when there is none
+function SDL.UseBagItem(name)
+    local bag, slot = SDL.FindBagItem(name)
+    if not bag then return false end
+    UseContainerItem(bag, slot)
+    return true
+end
+
+local MANA_ORANGE = "Conjured Mana Orange"
+local CONSUMES = { "Conjured Crystal Water", "Conjured Cinnamon Roll" }
+
+-- Mana Orange restores both, so it replaces the water and the roll
+function SDL.Consume()
+    if SDL.UseBagItem(MANA_ORANGE) then return end
+    for i = 1, table.getn(CONSUMES) do
+        if not SDL.UseBagItem(CONSUMES[i]) then
+            SDL.Print("no " .. CONSUMES[i] .. " in bags")
+        end
+    end
 end
 
 --------------------------------------------------

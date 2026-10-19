@@ -35,4 +35,7 @@
 	<Binding name="SDL_BALANCE_ST" header="SDL">
 		SDL.Press("balance_st")
 	</Binding>
+	<Binding name="SDL_CONSUME" header="SDL">
+		SDL.Consume()
+	</Binding>
 </Bindings>
